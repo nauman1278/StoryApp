@@ -11,12 +11,12 @@ export default function StoryEditor() {
     const [fullStory, setFullStory] = useState('');
 
     useEffect(() => {
-        axios.get(`http://localhost:5000/api/projects/${id}`).then(res => setProject(res.data));
+        axios.get(`/api/projects/${id}`).then(res => setProject(res.data));
         fetchScenes();
     }, [id]);
 
     const fetchScenes = () => {
-        axios.get(`http://localhost:5000/api/projects/${id}/scenes`).then(res => setScenes(res.data));
+        axios.get(`/api/projects/${id}/scenes`).then(res => setScenes(res.data));
     };
 
     const handleSplitStory = async () => {
@@ -24,7 +24,7 @@ export default function StoryEditor() {
 
         const toastId = toast.loading('Analyzing story and generating scenes with Groq AI...');
         try {
-            await axios.post(`http://localhost:5000/api/projects/${id}/scenes/extract`, { fullStory });
+            await axios.post(`/api/projects/${id}/scenes/extract`, { fullStory });
             toast.success('Scenes generated successfully!', { id: toastId });
             setFullStory('');
             fetchScenes();

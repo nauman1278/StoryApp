@@ -16,7 +16,7 @@ export default function VoiceStudio() {
     const [isFetchingVoices, setIsFetchingVoices] = useState(false);
 
     useEffect(() => {
-        axios.get(`http://localhost:5000/api/projects/${id}`).then(res => {
+        axios.get(`/api/projects/${id}`).then(res => {
             setProject(res.data);
             if (res.data.ttsProvider) {
                 setProvider(res.data.ttsProvider);
@@ -29,19 +29,19 @@ export default function VoiceStudio() {
     useEffect(() => {
         if (!provider) return;
         setIsFetchingVoices(true);
-        axios.get(`http://localhost:5000/api/voices?provider=${provider}`)
+        axios.get(`/api/voices?provider=${provider}`)
             .then(res => setVoices(res.data))
             .catch(err => toast.error('Failed to fetch voices: ' + (err.response?.data?.error || err.message)))
             .finally(() => setIsFetchingVoices(false));
     }, [provider]);
 
     const fetchScenes = () => {
-        axios.get(`http://localhost:5000/api/projects/${id}/scenes`).then(res => setScenes(res.data));
+        axios.get(`/api/projects/${id}/scenes`).then(res => setScenes(res.data));
     };
 
     const handleSaveSettings = async () => {
         try {
-            await axios.put(`http://localhost:5000/api/projects/${id}`, {
+            await axios.put(`/api/projects/${id}`, {
                 ttsProvider: provider,
                 selectedVoiceId: selectedVoice
             });
@@ -55,14 +55,14 @@ export default function VoiceStudio() {
         if (!selectedVoice) return toast.error('Select a voice first');
         const toastId = toast.loading('Generating preview...');
         try {
-            const res = await axios.post(`http://localhost:5000/api/voices/preview`, {
+            const res = await axios.post(`/api/voices/preview`, {
                 provider,
                 voiceId: selectedVoice,
                 text: "Hello! This is a preview of how my voice sounds for your story."
             });
             
             toast.dismiss(toastId);
-            const audio = new Audio(`http://localhost:5000${res.data.previewUrl}`);
+            const audio = new Audio(`${res.data.previewUrl}`);
             audio.play();
         } catch (error) {
             toast.error('Failed to generate preview', { id: toastId });
@@ -76,7 +76,7 @@ export default function VoiceStudio() {
     useEffect(() => {
         if (!activeJob) return;
 
-        const evtSource = new EventSource(`http://localhost:5000/api/jobs/${activeJob}/events`);
+        const evtSource = new EventSource(`/api/jobs/${activeJob}/events`);
         
         evtSource.onmessage = (event) => {
             const data = JSON.parse(event.data);
@@ -101,7 +101,7 @@ export default function VoiceStudio() {
     const handleGenerateAllAudio = async () => {
         if (!selectedVoice) return toast.error('Please select and save a voice first.');
         try {
-            const res = await axios.post(`http://localhost:5000/api/projects/${id}/render/audio`);
+            const res = await axios.post(`/api/projects/${id}/render/audio`);
             setActiveJob(res.data.jobId);
             setProgress(0);
             setJobStatus('PROCESSING');

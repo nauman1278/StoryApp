@@ -15,10 +15,10 @@ export default function RenderVideo() {
     const [videoUrl, setVideoUrl] = useState('');
 
     useEffect(() => {
-        axios.get(`http://localhost:5000/api/projects/${id}`).then(res => {
+        axios.get(`/api/projects/${id}`).then(res => {
             const proj = res.data;
             setProject(proj);
-            const url = `http://localhost:5000/output/${proj.name}/final/${proj.name}_final.mp4`;
+            const url = `/output/${proj.name}/final/${proj.name}_final.mp4`;
             setVideoUrl(url);
             
             // Check if video already exists
@@ -30,14 +30,14 @@ export default function RenderVideo() {
     }, [id]);
 
     const fetchScenes = () => {
-        axios.get(`http://localhost:5000/api/projects/${id}/scenes`).then(res => setScenes(res.data));
+        axios.get(`/api/projects/${id}/scenes`).then(res => setScenes(res.data));
     };
 
     // Subscribes to Server-Sent Events for real-time progress
     useEffect(() => {
         if (!activeJob) return;
 
-        const eventSource = new EventSource(`http://localhost:5000/api/jobs/${activeJob.id}/events`);
+        const eventSource = new EventSource(`/api/jobs/${activeJob.id}/events`);
         
         eventSource.onmessage = (e) => {
             const data = JSON.parse(e.data);
@@ -58,7 +58,7 @@ export default function RenderVideo() {
     const handleRenderVideo = async () => {
         try {
             setExistingVideo(false);
-            const res = await axios.post(`http://localhost:5000/api/projects/${id}/render/video`);
+            const res = await axios.post(`/api/projects/${id}/render/video`);
             setActiveJob({ id: res.data.jobId, type: 'RENDER_VIDEO', progress: 0, status: 'PROCESSING' });
         } catch (error) {
             toast.error('Failed to start video rendering: ' + (error.response?.data?.error || error.message));

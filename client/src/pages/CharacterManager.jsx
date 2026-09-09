@@ -15,18 +15,18 @@ export default function CharacterManager() {
     const [newCharLock, setNewCharLock] = useState('');
 
     useEffect(() => {
-        axios.get(`http://localhost:5000/api/projects/${id}`).then(res => setProject(res.data));
+        axios.get(`/api/projects/${id}`).then(res => setProject(res.data));
         fetchCharacters();
     }, [id]);
 
     const fetchCharacters = () => {
-        axios.get(`http://localhost:5000/api/projects/${id}/characters`).then(res => setCharacters(res.data));
+        axios.get(`/api/projects/${id}/characters`).then(res => setCharacters(res.data));
     };
 
     const handleAutoExtract = async () => {
         const toastId = toast.loading('Analyzing story with Groq AI...');
         try {
-            await axios.post(`http://localhost:5000/api/projects/${id}/characters/extract`);
+            await axios.post(`/api/projects/${id}/characters/extract`);
             toast.success('Characters extracted successfully!', { id: toastId });
             fetchCharacters();
         } catch (error) {
@@ -39,7 +39,7 @@ export default function CharacterManager() {
         if (!newCharName.trim() || !newCharLock.trim()) return toast.error('Both fields are required');
         
         try {
-            await axios.post(`http://localhost:5000/api/projects/${id}/characters`, {
+            await axios.post(`/api/projects/${id}/characters`, {
                 name: newCharName.trim(),
                 description: 'Main character',
                 appearanceLock: newCharLock.trim()

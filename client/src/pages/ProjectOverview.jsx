@@ -9,9 +9,9 @@ export default function ProjectOverview() {
 
     useEffect(() => {
         const fetchProject = async () => {
-            const res = await axios.get(`http://localhost:5000/api/projects/${id}`);
+            const res = await axios.get(`/api/projects/${id}`);
             setProject(res.data);
-            const scenesRes = await axios.get(`http://localhost:5000/api/projects/${id}/scenes`);
+            const scenesRes = await axios.get(`/api/projects/${id}/scenes`);
             setScenes(scenesRes.data);
         };
         fetchProject();

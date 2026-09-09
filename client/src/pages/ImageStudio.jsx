@@ -11,12 +11,12 @@ export default function ImageStudio() {
     const [copiedSceneId, setCopiedSceneId] = useState(null);
 
     useEffect(() => {
-        axios.get(`http://localhost:5000/api/projects/${id}`).then(res => setProject(res.data));
+        axios.get(`/api/projects/${id}`).then(res => setProject(res.data));
         fetchScenes();
     }, [id]);
 
     const fetchScenes = () => {
-        axios.get(`http://localhost:5000/api/projects/${id}/scenes`).then(res => setScenes(res.data));
+        axios.get(`/api/projects/${id}/scenes`).then(res => setScenes(res.data));
     };
 
     const handleImageUpload = async (sceneId, file) => {
@@ -26,7 +26,7 @@ export default function ImageStudio() {
         
         const toastId = toast.loading('Uploading image...');
         try {
-            await axios.post(`http://localhost:5000/api/projects/${id}/scenes/${sceneId}/image`, formData);
+            await axios.post(`/api/projects/${id}/scenes/${sceneId}/image`, formData);
             toast.success('Image uploaded successfully', { id: toastId });
             fetchScenes();
         } catch (error) {
@@ -44,7 +44,7 @@ export default function ImageStudio() {
     const handleGeneratePrompts = async () => {
         const toastId = toast.loading('Generating image prompts...');
         try {
-            await axios.post(`http://localhost:5000/api/projects/${id}/prompts/generate-all`);
+            await axios.post(`/api/projects/${id}/prompts/generate-all`);
             toast.success('Prompts generated successfully!', { id: toastId });
             fetchScenes();
         } catch (error) {
@@ -113,7 +113,7 @@ export default function ImageStudio() {
 
                         <div className="w-full lg:w-72 flex flex-col items-center justify-center border-2 border-dashed border-slate-300 rounded-2xl bg-slate-50 overflow-hidden relative group">
                             {scene.imagePath ? (
-                                <img src={`http://localhost:5000/output/${scene.imagePath}?t=${Date.now()}`} alt={`Scene ${scene.sceneNumber}`} className="w-full h-full object-cover" />
+                                <img src={`/output/${scene.imagePath}?t=${Date.now()}`} alt={`Scene ${scene.sceneNumber}`} className="w-full h-full object-cover" />
                             ) : (
                                 <div className="p-8 text-center flex flex-col items-center">
                                     <svg className="w-10 h-10 text-slate-400 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
