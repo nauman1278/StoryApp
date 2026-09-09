@@ -7,9 +7,10 @@ COPY client/ ./
 RUN npm run build
 
 # Stage 2: Build the backend and final image
-FROM node:20-slim
+FROM node:20
 
 # Install FFmpeg (required for video rendering)
+# The full node:20 image already has python3 and make installed for better-sqlite3!
 RUN apt-get update && \
     apt-get install -y ffmpeg && \
     rm -rf /var/lib/apt/lists/*
