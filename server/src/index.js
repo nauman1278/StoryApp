@@ -36,10 +36,12 @@ app.get('/health', (req, res) => {
 // Serve frontend in production
 const clientDistPath = path.join(__dirname, '../../client/dist');
 app.use(express.static(clientDistPath));
-app.get('*', (req, res) => {
+app.use((req, res) => {
     // Only send the React index.html for non-API requests
     if (!req.path.startsWith('/api/') && !req.path.startsWith('/output/')) {
         res.sendFile(path.join(clientDistPath, 'index.html'));
+    } else {
+        res.status(404).json({ error: 'Not Found' });
     }
 });
 
@@ -55,8 +57,8 @@ app.use((err, req, res, next) => {
     });
 });
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 5000;
 
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
     console.log(`Server running on port ${PORT}`);
 });
