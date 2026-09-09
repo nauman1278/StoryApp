@@ -1,0 +1,23 @@
+# Dependencies
+node_modules/
+client/node_modules/
+server/node_modules/
+
+# Generated output and temporary files
+output/
+client/dist/
+
+# Database files (We don't want to push local DB to cloud)
+server/data/
+
+# Environment Variables (Keep secrets out of version control!)
+.env
+.env.local
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS Files
+.DS_Store
+Thumbs.db
