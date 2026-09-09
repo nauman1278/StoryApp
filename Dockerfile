@@ -1,5 +1,5 @@
 # Stage 1: Build the React frontend
-FROM node:20 AS frontend-builder
+FROM node:22 AS frontend-builder
 WORKDIR /app/client
 COPY client/package*.json ./
 RUN npm install
@@ -7,12 +7,11 @@ COPY client/ ./
 RUN npm run build
 
 # Stage 2: Build the backend and final image
-FROM node:20
+FROM node:22-slim
 
-# Install FFmpeg (required for video rendering)
-# The full node:20 image already has python3 and make installed for better-sqlite3!
+# Install FFmpeg and build tools (required for video rendering and sqlite3 compilation)
 RUN apt-get update && \
-    apt-get install -y ffmpeg && \
+    apt-get install -y ffmpeg python3 build-essential && \
     rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
