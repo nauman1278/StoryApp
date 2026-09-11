@@ -49,6 +49,7 @@ ${fullStory}`;
 
         const response = await groq.chat.completions.create({
             model: 'openai/gpt-oss-120b',
+            max_tokens: 8192,
             messages: [{ role: 'user', content: prompt }]
             // Removed response_format to prevent Groq internal validation errors
         });
