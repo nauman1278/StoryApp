@@ -49,15 +49,30 @@ ${fullStory}`;
 
         const response = await groq.chat.completions.create({
             model: 'openai/gpt-oss-120b',
-            messages: [{ role: 'user', content: prompt }],
-            response_format: { type: 'json_object' }
+            messages: [{ role: 'user', content: prompt }]
+            // Removed response_format to prevent Groq internal validation errors
         });
         
         let extractedCharacters = [];
         try {
-            const data = JSON.parse(response.choices[0].message.content);
+            let content = response.choices[0].message.content;
+            
+            if (content.includes('```json')) {
+                content = content.split('```json')[1].split('```')[0].trim();
+            } else if (content.includes('```')) {
+                content = content.split('```')[1].split('```')[0].trim();
+            }
+            
+            const startIndex = content.indexOf('{');
+            const endIndex = content.lastIndexOf('}');
+            if (startIndex !== -1 && endIndex !== -1) {
+                content = content.substring(startIndex, endIndex + 1);
+            }
+            
+            const data = JSON.parse(content);
             extractedCharacters = data.characters || [];
         } catch (e) {
+            console.error("Parse error on content:", response.choices[0].message.content);
             return res.status(500).json({ error: 'Failed to parse AI response' });
         }
         
