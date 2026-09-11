@@ -20,27 +20,21 @@ class PromptGenerator {
             scene.script.toLowerCase().includes(c.name.toLowerCase())
         );
 
-        let characterSection = mentionedCharacters.length > 0 
-            ? mentionedCharacters.map(c => `${c.name}: ${c.appearanceLock}`).join('\n')
-            : 'No specific recurring characters in this scene.';
+        let characterDescriptions = mentionedCharacters.map(c => `[CHARACTER: ${c.name} - EXACT APPEARANCE: ${c.appearanceLock}]`).join(' ');
 
-        return `SCENE:
-${scene.script}
+        return `SUBJECT AND ACTION: ${scene.script.replace(/\n/g, ' ')}
+        
+INVOLVED CHARACTERS (STRICT CONSISTENCY REQUIRED): 
+${characterDescriptions ? characterDescriptions : 'No specific recurring characters.'}
 
-MAIN CHARACTER(S):
-${characterSection}
+ENVIRONMENT AND LIGHTING:
+Natural cinematic composition, soft realistic shading, subtle cinematic lighting.
 
-COMPOSITION:
-16:9 landscape frame.
-Clear primary subject.
-Natural cinematic composition.
-Do not overcrowd the frame.
+ART STYLE:
+Professional cinematic digital story illustration, semi-realistic, clean linework, educational visual storytelling, expressive emotions, extremely consistent character design. 16:9 landscape framing.
 
-STYLE LOCK:
-Professional cinematic digital story illustration, semi-realistic illustrated characters, clean linework, soft realistic shading, subtle cinematic lighting, natural colors, educational visual storytelling, emotionally expressive characters, consistent character design, high-quality illustrated storybook frame.
-
-CONSTRAINTS:
-No watermark. No logo. No random text. No subtitles. No distorted anatomy. No duplicate characters. No unnecessary background people. No visual clutter. 16:9 landscape.`;
+NEGATIVE PROMPT:
+No watermark, no logo, no text, no distorted anatomy, no duplicate characters, no clutter.`;
     }
 
     generateVintage(scene) {

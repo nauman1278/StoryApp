@@ -52,6 +52,27 @@ export default function ImageStudio() {
         }
     };
 
+    const handleCopyAllForFlow = () => {
+        if (!scenes || scenes.length === 0) return;
+        
+        let bulkPrompt = `I need you to generate images for my story scenes sequentially. 
+CRITICAL INSTRUCTION: Please strictly name each generated image file with the EXACT format "scene_XXX" where XXX is the zero-padded scene number (e.g. scene_001, scene_002) so I can easily download and organize them!
+
+Please generate the following scenes maintaining strict character consistency:
+
+`;
+
+        scenes.forEach(scene => {
+            if (scene.imagePrompt) {
+                const paddedNumber = String(scene.sceneNumber).padStart(3, '0');
+                bulkPrompt += `=== SCENE NUMBER: ${paddedNumber} ===\nFILENAME: scene_${paddedNumber}\n${scene.imagePrompt}\n\n`;
+            }
+        });
+
+        navigator.clipboard.writeText(bulkPrompt);
+        toast.success('Bulk instructions copied for Google Flow!');
+    };
+
     if (!project) return <div>Loading...</div>;
 
     const allImagesUploaded = scenes.length > 0 && scenes.every(s => s.imagePath);
@@ -64,9 +85,13 @@ export default function ImageStudio() {
                     <p className="text-slate-500 text-sm mt-1">Generate image prompts based on your characters, and upload the final scene illustrations.</p>
                 </div>
                 <div className="flex items-center gap-4">
+                    <button onClick={handleCopyAllForFlow} className="bg-white border border-indigo-200 text-indigo-600 px-6 py-2.5 rounded-xl shadow-sm hover:bg-indigo-50 hover:-translate-y-0.5 transition-all font-semibold flex items-center gap-2">
+                        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+                        Copy All for Flow
+                    </button>
                     <button onClick={handleGeneratePrompts} className="bg-gradient-to-r from-emerald-500 to-teal-500 text-white px-6 py-2.5 rounded-xl shadow-lg shadow-emerald-500/30 hover:shadow-emerald-500/50 hover:-translate-y-0.5 transition-all font-semibold flex items-center gap-2">
                         <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" /></svg>
-                        Generate All Image Prompts
+                        Generate Prompts
                     </button>
                     <button onClick={() => navigate(`/projects/${id}`)} className="flex items-center gap-2 text-sm font-semibold text-slate-500 hover:text-slate-800 transition-colors">
                         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
