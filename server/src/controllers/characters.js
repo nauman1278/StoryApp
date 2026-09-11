@@ -42,7 +42,7 @@ exports.extractCharacters = async (req, res) => {
         
         const prompt = `Analyze the following story and extract all distinct characters.
 For each character, provide their name exactly as it appears in the story, and write a 1-sentence "appearanceLock" describing their physical traits and clothing based on context clues.
-You MUST output a valid JSON object containing a "characters" array, where each object has "name" and "appearanceLock" string properties.
+You MUST output ONLY a valid JSON object containing a "characters" array, where each object has "name" and "appearanceLock" string properties. Do NOT output any reasoning or explanations.
 
 Story:
 ${fullStory}`;

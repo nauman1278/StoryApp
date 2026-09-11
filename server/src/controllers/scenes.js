@@ -79,9 +79,9 @@ exports.extractScenes = async (req, res) => {
         const prompt = `Analyze the following story and split it into logical visual scenes for a video.
 CRITICAL RULES:
 1. Break the story when the LOCATION changes, the ENVIRONMENT changes, or a significant visual action occurs.
-2. The maximum length of a single scene is 50 words. If a scene is longer, you MUST split it into two scenes.
-3. Output the exact original text of the story (do not summarize or skip words). Combine the text segments to ensure the entire story is narrated.
-4. You MUST output a valid JSON object with a single "scenes" array property, where each item in the array is a string containing the text for that scene.
+2. Keep each scene relatively short (roughly 1 to 3 sentences maximum).
+3. Output the exact original text of the story (do not summarize or skip words).
+4. Output ONLY a valid JSON object with a single "scenes" array property, where each item in the array is a string containing the text for that scene. Do NOT output any reasoning, word counts, or explanations.
 
 Story:
 ${fullStory}`;
