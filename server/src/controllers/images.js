@@ -48,14 +48,22 @@ exports.uploadSceneImage = (req, res) => {
             return res.status(400).json({ error: 'Unsupported image type. Use JPG, PNG, or WEBP' });
         }
 
-        // Validate aspect ratio (16:9 expected for MVP)
-        if (project.aspectRatio === '16:9') {
-            const ratio = dimensions.width / dimensions.height;
-            const targetRatio = 16 / 9;
-            // Allow a small margin of error for aspect ratio
-            if (Math.abs(ratio - targetRatio) > 0.05) {
-                return res.status(400).json({ error: `Image aspect ratio is ${ratio.toFixed(2)}, expected ~1.77 (16:9)` });
-            }
+        // Validate aspect ratio (16:9, 9:16, 1:1)
+        const ratio = dimensions.width / dimensions.height;
+        let targetRatio = 16 / 9;
+        let expectedText = '16:9 (~1.77)';
+
+        if (project.aspectRatio === '9:16') {
+            targetRatio = 9 / 16;
+            expectedText = '9:16 (~0.56)';
+        } else if (project.aspectRatio === '1:1') {
+            targetRatio = 1;
+            expectedText = '1:1 (1.00)';
+        }
+
+        // Allow a small margin of error (approx 5%)
+        if (Math.abs(ratio - targetRatio) > (targetRatio * 0.05)) {
+            return res.status(400).json({ error: `Image aspect ratio is ${ratio.toFixed(2)}, expected ${expectedText}` });
         }
 
         // Create project directories if they don't exist

@@ -15,6 +15,16 @@ exports.renderProjectVideo = async (project, scenes, projectDir, onProgress) => 
     const clipPaths = [];
     const baseOutputRoot = path.join(__dirname, '../../../output');
 
+    let videoWidth = 1920;
+    let videoHeight = 1080;
+    if (project.aspectRatio === '9:16') {
+        videoWidth = 1080;
+        videoHeight = 1920;
+    } else if (project.aspectRatio === '1:1') {
+        videoWidth = 1080;
+        videoHeight = 1080;
+    }
+
     for (let i = 0; i < scenes.length; i++) {
         const scene = scenes[i];
         
@@ -33,7 +43,7 @@ exports.renderProjectVideo = async (project, scenes, projectDir, onProgress) => 
         const duration = scene.audioDuration + 0.2; 
         
         // Build FFmpeg command for static image + audio
-        let vfFilter = 'scale=1920:1080:force_original_aspect_ratio=increase,crop=1920:1080,format=yuv420p';
+        let vfFilter = `scale=${videoWidth}:${videoHeight}:force_original_aspect_ratio=increase,crop=${videoWidth}:${videoHeight},format=yuv420p`;
 
         if (project.visualStyle === 'Vintage') {
             // We'll wrap the text tightly so it forms a tall, narrow column on the left side
@@ -52,16 +62,21 @@ exports.renderProjectVideo = async (project, scenes, projectDir, onProgress) => 
                 return lines.join('\n');
             };
             
-            // 28 characters max forces it to stay strictly on the left half of the screen
-            const wrappedScript = wrapText(scene.script, 28);
+            // Adjust max chars based on width
+            const maxChars = videoWidth === 1080 ? 20 : 28;
+            const wrappedScript = wrapText(scene.script, maxChars);
             const textFile = path.join(clipsDir, `scene_${paddedNumber}.txt`);
             fs.writeFileSync(textFile, wrappedScript);
             
             // Clean path for ffmpeg
             const escapedTextPath = textFile.replace(/\\/g, '/').replace(/:/g, '\\:');
             
-            // x=120, y=120 places it at the top left.
-            vfFilter += `,drawtext=textfile='${escapedTextPath}':fontcolor=black:fontsize=56:x=120:y=120:line_spacing=25:font='sans-serif'`;
+            // Dynamic text placement based on aspect ratio
+            const fontSize = videoWidth === 1080 ? 46 : 56;
+            const startX = videoWidth === 1080 ? 80 : 120;
+            const startY = videoWidth === 1080 ? 120 : 120;
+            
+            vfFilter += `,drawtext=textfile='${escapedTextPath}':fontcolor=black:fontsize=${fontSize}:x=${startX}:y=${startY}:line_spacing=25:font='sans-serif'`;
             
             // Add a subtle vintage color grade or sepia overlay
             vfFilter += ',colorchannelmixer=.393:.769:.189:0:.349:.686:.168:0:.272:.534:.131';
@@ -71,7 +86,9 @@ exports.renderProjectVideo = async (project, scenes, projectDir, onProgress) => 
             const srtService = require('./srtService');
             srtService.generateSRT(scene.script, duration, srtFile);
             const escapedSrtPath = srtFile.replace(/\\/g, '/').replace(/:/g, '\\:');
-            vfFilter += `,subtitles='${escapedSrtPath}':force_style='FontName=sans-serif,FontSize=24,PrimaryColour=&H00FFFFFF,OutlineColour=&H00000000,BorderStyle=1,Outline=3,Shadow=1,MarginV=60,Alignment=2'`;
+            // Adjust margin based on vertical height
+            const marginV = videoHeight > 1080 ? 120 : 60;
+            vfFilter += `,subtitles='${escapedSrtPath}':force_style='FontName=sans-serif,FontSize=24,PrimaryColour=&H00FFFFFF,OutlineColour=&H00000000,BorderStyle=1,Outline=3,Shadow=1,MarginV=${marginV},Alignment=2'`;
         }
 
         const cmd = `ffmpeg -y -loop 1 -framerate 30 -i "${imageFile}" -i "${audioFile}" -c:v libx264 -t ${duration} -vf "${vfFilter}" -c:a aac -b:a 192k -pix_fmt yuv420p -shortest "${outputClip}"`;
